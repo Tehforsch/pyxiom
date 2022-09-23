@@ -13,7 +13,7 @@ class Parameters:
             self.simulation = self.get_sub_parameters(SimulationParameters, "simulation")
             self.output = self.get_sub_parameters(OutputParameters, "output")
 
-    def get_sub_parameters(self, param_type: Type[Parameters], identifier: str) -> Parameters:
+    def get_sub_parameters(self, param_type: Type[Parameters], identifier: str) -> Any:
         sub_params = self.raw_values.get(identifier)
         if sub_params is None:
             return param_type({})
@@ -26,6 +26,10 @@ class Parameters:
     def __getitem__(self, k: str) -> Any:
         return self.raw_values[k]
 
+    # This is here to allow setting new attributes from set_values
+    def __setattr__(self, name: str, value: Any) -> None:
+        object.__setattr__(self, name, value)
+
 
 class SimulationParameters(Parameters):
     def set_values(self) -> None:
@@ -34,7 +38,7 @@ class SimulationParameters(Parameters):
 
 class OutputParameters(Parameters):
     def set_values(self) -> None:
-        self.timestep = u.Quantity(self["timestep"])
+        self.output_dir: str = self["output_dir"]
 
 
 def read_parameters(path: Path) -> Parameters:
