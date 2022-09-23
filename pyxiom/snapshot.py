@@ -1,10 +1,11 @@
-from typing import List, Dict
+from typing import List
 from pathlib import Path
 
 import numpy as np
 import astropy.units as u
 import h5py
 
+from pyxiom.utils import get_dirs, get_files
 from pyxiom.config import LENGTH_SCALING_IDENTIFIER, TIME_SCALING_IDENTIFIER, MASS_SCALING_IDENTIFIER, SCALE_FACTOR_SI_IDENTIFIER, SNAPSHOT_FILE_NAME
 
 
@@ -50,26 +51,19 @@ def get_snapshot_paths_from_output_files(output_files: List[Path]) -> List[Path]
     return [path for path in output_files if is_snapshot_file(path)]
 
 
-def get_snapshots_from_output_files(output_files: List[Path]) -> List[Snapshot]:
-    snap_paths = [path for path in output_files if is_snapshot_file(path)]
-    snapshot_infos = [parse_snapshot_file_name(snap_path) for snap_path in snap_paths]
-    snapshots_by_num: Dict[int, List[SnapshotFileInfo]] = {}
-    for snap in snapshot_infos:
-        paths = snapshots_by_num.get(snap.num)
-        if paths is None:
-            snapshots_by_num[snap.num] = [snap]
-        else:
-            snapshots_by_num[snap.num].append(snap)
-    nums = sorted(list(snapshots_by_num.keys()))
-    return [Snapshot(snapshots_by_num[num]) for num in nums]
+def get_snapshots_from_dir(path: Path) -> List[Snapshot]:
+    snap_dirs = get_dirs(path)
+    return sorted([get_snapshot_from_dir(snap_dir) for snap_dir in snap_dirs], key=lambda snap: snap.num)
+
+
+def get_snapshot_from_dir(path: Path) -> Snapshot:
+    snapshot_infos = [parse_snapshot_file_name(snap_file) for snap_file in get_files(path)]
+    return Snapshot(snapshot_infos)
 
 
 def parse_snapshot_file_name(path: Path) -> SnapshotFileInfo:
-    stem = path.stem
-    assert SNAPSHOT_FILE_NAME in stem
-    split = stem.split("_")
-    snap_num = split[1]
-    rank_num = split[2]
+    snap_num = path.parent.stem
+    rank_num = path.stem
     return SnapshotFileInfo(path, snap_num, rank_num)
 
 
