@@ -32,6 +32,15 @@ class Snapshot:
     def position(self) -> u.Quantity:
         return self.read_dataset("position")
 
+    def velocity(self) -> u.Quantity:
+        return self.read_dataset("velocity")
+
+    def temperature(self) -> u.Quantity:
+        return self.read_dataset("temperature")
+
+    def mass(self) -> u.Quantity:
+        return self.read_dataset("mass")
+
     def read_dataset(self, name: str) -> u.Quantity:
         files = self.hdf5_files()
         data = np.concatenate(tuple(f[name][...] for f in files))

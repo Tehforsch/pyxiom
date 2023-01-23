@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Any, Type
 from pathlib import Path
 import yaml
-import astropy.units as u
 
 
 class Parameters:
@@ -30,15 +29,18 @@ class Parameters:
     def __setattr__(self, name: str, value: Any) -> None:
         object.__setattr__(self, name, value)
 
+    def __contains__(self, key: str) -> bool:
+        return self.raw_values.__contains__(key)
+
 
 class SimulationParameters(Parameters):
     def set_values(self) -> None:
-        self.timestep = u.Quantity(self["timestep"])
+        pass
 
 
 class OutputParameters(Parameters):
     def set_values(self) -> None:
-        self.output_dir: str = self["output_dir"]
+        self.output_dir: str = self["output_dir"] if "output_dir" in self else "output"
 
 
 def read_parameters(path: Path) -> Parameters:
