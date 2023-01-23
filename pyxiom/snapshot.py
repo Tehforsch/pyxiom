@@ -32,6 +32,9 @@ class Snapshot:
     def position(self) -> u.Quantity:
         return self.read_dataset("position")
 
+    def ionized_hydrogen_fraction(self) -> u.Quantity:
+        return self.read_dataset("ionized_hydrogen_fraction")
+
     def velocity(self) -> u.Quantity:
         return self.read_dataset("velocity")
 
@@ -41,11 +44,18 @@ class Snapshot:
     def mass(self) -> u.Quantity:
         return self.read_dataset("mass")
 
+    def time(self) -> u.Quantity:
+        return self.read_attr("time") * u.s
+
     def read_dataset(self, name: str) -> u.Quantity:
         files = self.hdf5_files()
         data = np.concatenate(tuple(f[name][...] for f in files))
         unit = self.read_unit_from_dataset(name, files[0])
         return unit * data
+
+    def read_attr(self, name: str) -> u.Quantity:
+        files = self.hdf5_files()
+        return files[0].attrs[name]
 
     def read_unit_from_dataset(self, dataset_name: str, f: h5py.File) -> u.Quantity:
         dataset = f[dataset_name]
