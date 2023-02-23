@@ -15,7 +15,9 @@ def getIonization(positions: u.Quantity, data: u.Quantity, center: u.Quantity, r
     distanceToCenter = getDistanceToCenter(positions, center)
     insideShell = np.where((distanceToCenter > radius - shellWidth / 2) & (distanceToCenter < radius + shellWidth / 2))
     if insideShell[0].shape[0] == 0:
-        raise ValueError("No data points inside shell")
+        print("No data points inside shell")
+        return float("nan")
+        # raise ValueError("No data points inside shell")
     return np.mean(1 - data[insideShell])
 
 
@@ -47,16 +49,20 @@ def bisect(
     start: u.Quantity,
     end: u.Quantity,
     precision: float = 0.01,
+    depth: int = 0,
 ) -> u.Quantity:
     """Find the x at which the monotonously growing function valueFunction fulfills valueFunction(x) = targetValue to a precision (in x) of precision. start and end denote the maximum and minimum possible x value"""
     position = (end + start) / 2
+    if depth > 100:
+        print("Failed to bisect")
+        return position
     if (end - start) / (abs(end) + abs(start)) < precision:
         return position
     value = valueFunction(position)
     if value < targetValue:
-        return bisect(valueFunction, targetValue, position, end, precision=precision)
+        return bisect(valueFunction, targetValue, position, end, precision=precision, depth=depth + 1)
     else:
-        return bisect(valueFunction, targetValue, start, position, precision=precision)
+        return bisect(valueFunction, targetValue, start, position, precision=precision, depth=depth + 1)
 
 
 sim = Simulation(Path(sys.argv[1]))

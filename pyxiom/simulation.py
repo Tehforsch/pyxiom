@@ -4,6 +4,7 @@ from pathlib import Path
 from pyxiom import config
 from pyxiom.parameters import read_parameters
 from pyxiom.snapshot import Snapshot, get_snapshots_from_dir
+from pyxiom.time_series import TimeSeries, read_time_series
 
 
 class Simulation:
@@ -13,3 +14,9 @@ class Simulation:
 
     def snapshots(self) -> List[Snapshot]:
         return get_snapshots_from_dir(self.path / config.SNAPSHOTS_DIR_NAME)
+
+    def get_timeseries(self, name: str) -> TimeSeries:
+        return read_time_series(self.path / config.TIME_SERIES_DIR_NAME / f"{name}.hdf5", name)
+
+    def __repr__(self) -> str:
+        return str(self.path)

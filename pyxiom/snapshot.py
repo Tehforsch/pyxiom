@@ -50,20 +50,21 @@ class Snapshot:
     def read_dataset(self, name: str) -> u.Quantity:
         files = self.hdf5_files()
         data = np.concatenate(tuple(f[name][...] for f in files))
-        unit = self.read_unit_from_dataset(name, files[0])
+        unit = read_unit_from_dataset(name, files[0])
         return unit * data
 
     def read_attr(self, name: str) -> u.Quantity:
         files = self.hdf5_files()
         return files[0].attrs[name]
 
-    def read_unit_from_dataset(self, dataset_name: str, f: h5py.File) -> u.Quantity:
-        dataset = f[dataset_name]
-        unit = 1.0
-        unit *= u.m ** dataset.attrs[LENGTH_SCALING_IDENTIFIER]
-        unit *= u.s ** dataset.attrs[TIME_SCALING_IDENTIFIER]
-        unit *= u.kg ** dataset.attrs[MASS_SCALING_IDENTIFIER]
-        return unit * dataset.attrs[SCALE_FACTOR_SI_IDENTIFIER]
+
+def read_unit_from_dataset(dataset_name: str, f: h5py.File) -> u.Quantity:
+    dataset = f[dataset_name]
+    unit = 1.0
+    unit *= u.m ** dataset.attrs[LENGTH_SCALING_IDENTIFIER]
+    unit *= u.s ** dataset.attrs[TIME_SCALING_IDENTIFIER]
+    unit *= u.kg ** dataset.attrs[MASS_SCALING_IDENTIFIER]
+    return unit * dataset.attrs[SCALE_FACTOR_SI_IDENTIFIER]
 
 
 def get_snapshot_paths_from_output_files(output_files: List[Path]) -> List[Path]:
