@@ -1,3 +1,4 @@
+import os
 from typing import Callable
 import numpy as np
 import sys
@@ -8,6 +9,7 @@ import astropy.units as u
 from pyxiom.simulation import Simulation
 from pyxiom.snapshot import Snapshot
 from pyxiom.parameters.parameters import BoxSize
+from pyxiom.parameters.parameters import SingleSource
 
 
 def getIonization(positions: u.Quantity, data: u.Quantity, center: u.Quantity, radius: u.Quantity) -> u.Quantity:
@@ -65,23 +67,25 @@ def bisect(
         return bisect(valueFunction, targetValue, start, position, precision=precision, depth=depth + 1)
 
 
-sim = Simulation(Path(sys.argv[1]))
+for path in [Path(sys.argv[1]) / p for p in os.listdir(sys.argv[1])]:
+    sim = Simulation(path)
 
-recombination_time = 122.4 * u.Myr
-stroemgren_radius = 6.79 * u.kpc
+    recombination_time = 122.4 * u.Myr
+    stroemgren_radius = 6.79 * u.kpc
 
-times = np.array([]) * u.s
-radii = np.array([]) * u.m
-analytical = np.array([]) * u.m
-for snap in sim.snapshots():
-    times = np.append(times, snap.time())
-    radii = np.append(radii, getIonizationRadius(snap, sim.parameters.box_size))
-    analytical = np.append(analytical, analyticalRTypeExpansion(snap.time(), recombination_time, stroemgren_radius))
+    times = np.array([]) * u.s
+    radii = np.array([]) * u.m
+    analytical = np.array([]) * u.m
+    for snap in sim.snapshots():
+        times = np.append(times, snap.time())
+        radii = np.append(radii, getIonizationRadius(snap, sim.parameters.box_size))
+        analytical = np.append(analytical, analyticalRTypeExpansion(snap.time(), recombination_time, stroemgren_radius))
 
-plt.plot(times.to_value(u.Myr), radii.to_value(u.kpc))
-plt.plot(times.to_value(u.Myr), analytical.to_value(u.kpc))
-picsPath = sim.path / Path("pics")
-picsPath.mkdir(exist_ok=True)
-plt.savefig(picsPath / snap.str_num)
-plt.show()
-plt.clf()
+    plt.plot(times.to_value(u.Myr), radii.to_value(u.kpc))
+    plt.plot(times.to_value(u.Myr), analytical.to_value(u.kpc))
+    print(times.to_value(u.Myr), radii.to_value(u.kpc))
+    picsPath = sim.path / Path("pics")
+    picsPath.mkdir(exist_ok=True)
+    plt.savefig(picsPath / "out")
+    plt.show()
+    plt.clf()

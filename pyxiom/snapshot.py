@@ -57,6 +57,9 @@ class Snapshot:
         files = self.hdf5_files()
         return files[0].attrs[name]
 
+    def __repr__(self) -> str:
+        return self.str_num
+
 
 def read_unit_from_dataset(dataset_name: str, f: h5py.File) -> u.Quantity:
     dataset = f[dataset_name]

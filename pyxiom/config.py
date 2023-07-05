@@ -1,4 +1,4 @@
-PARAMETER_FILE_NAME = "parameters.yml"
+PARAMETER_FILE_NAME = "params.yml"
 SNAPSHOT_FILE_NAME = "snapshot"
 SNAPSHOTS_DIR_NAME = "snapshots"
 TIME_SERIES_DIR_NAME = "time_series"
