@@ -2,6 +2,8 @@ from pathlib import Path
 import numpy as np
 import h5py
 import astropy.units as u
+import polars as pl
+from polars import DataFrame
 
 from pyxiom.snapshot import read_unit_from_dataset
 
@@ -19,6 +21,6 @@ def read_dataset(file_: h5py.File, dataset_name: str) -> u.Quantity:
     return unit * data
 
 
-def read_time_series(path: Path, name: str) -> TimeSeries:
+def read_time_series(path: Path, name: str) -> DataFrame:
     with h5py.File(path, "r") as f:
         return TimeSeries(f, name)

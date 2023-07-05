@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import yaml
 import astropy.units as u
+from .special_params import *
 
 
 class Parameters:
@@ -64,23 +65,3 @@ class OutputParameters(Parameters):
 def read_parameters(path: Path) -> Parameters:
     with open(path, "r") as f:
         return Parameters(yaml.load(f, Loader=yaml.Loader))
-
-class SingleSource(yaml.YAMLObject):
-    yaml_tag = "!single_source"
-
-    def __init__(self, val):
-        self.val = val
-
-    @classmethod
-    def from_yaml(cls, loader, node):
-        return cls(node.value)
-
-class ReadGrid(yaml.YAMLObject):
-    yaml_tag = "!read"
-
-    def __init__(self, val):
-        self.val = val
-
-    @classmethod
-    def from_yaml(cls, loader, node):
-        return cls(node.value)
