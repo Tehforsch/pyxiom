@@ -23,4 +23,6 @@ def read_dataset(file_: h5py.File, dataset_name: str) -> u.Quantity:
 
 def read_time_series(path: Path, name: str) -> DataFrame:
     with h5py.File(path, "r") as f:
-        return TimeSeries(f, name)
+        series = TimeSeries(f, name)
+        df = DataFrame({"time": series.time.to(u.s), name: series.value})
+        return df
